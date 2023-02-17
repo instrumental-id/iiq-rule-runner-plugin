@@ -1,0 +1,28 @@
+<div class="button-row">
+    <button class="btn btn-success" ng-click="ctrl.runRule()" ng-disabled="ctrl.running" role="button">
+        <span ng-if="!ctrl.running"><i class="glyphicon glyphicon-flash"></i>Run</span>
+        <span class="glyphicon glyphicon-refresh spinning" ng-if="ctrl.running"/>
+    </button>
+    <button class="btn btn-danger" ng-click="ctrl.abortRule()" ng-disabled="!ctrl.running || !ctrl.async || aborting || !lastUpdateObject.uuid" role="button">
+        <span ng-if="!aborting"><i class="glyphicon glyphicon-remove"></i>Stop</span>
+        <span ng-if="aborting"><span class="glyphicon glyphicon-refresh spinning"/>Stopping...</span>
+    </button>
+</div>
+<div class="button-row input-group col-xs-6">
+    <span class="input-group-addon">Custom Timeout</span>
+    <input type="text" title="Number of minutes before running rule is interrupted (default 10)" class="form-control" ng-disabled="ctrl.running" ng-model="ctrl.ruleTimeout" placeholder="10"/>
+</div>
+<div class="button-row">
+    <button class="btn btn-secondary" ng-click="ctrl.clearRule()" ng-disabled="ctrl.running" role="button">
+        <span><i class="glyphicon glyphicon-file"></i>New</span>
+    </button>
+    <button class="btn btn-secondary" ng-click="ctrl.startLoadRule()" ng-disabled="ctrl.running" role="button">
+        <span><i class="glyphicon glyphicon-floppy-open"></i>Open</span>
+    </button>
+    <button class="btn btn-secondary" ng-click="ctrl.startSaveRule()" ng-disabled="ctrl.running" role="button">
+        <span><i class="glyphicon glyphicon-floppy-save"></i>Save</span>
+    </button>
+    <button class="btn btn-secondary" ng-click="ctrl.startVariables()" ng-disabled="ctrl.running" role="button">
+        <span><i class="glyphicon glyphicon-cog"></i>Variables</span>
+    </button>
+</div>

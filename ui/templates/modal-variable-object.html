@@ -1,0 +1,66 @@
+<form name="variableForm">
+    <div class="form-group">
+        <label for="idwrrVariableName">Name:</label>
+        <input id="idwrrVariableName" name="idwrrVariableName" type="text" class="form-control" ng-model="variableSelected.name" ng-required="true"/>
+        <span class="help-block rrVariableErrorText" ng-if="variableForm.idwrrVariableName.$dirty && variableSelected.getValidationText()">{{variableSelected.getValidationText()}}</span>
+    </div>
+
+    <div class="form-group">
+        <label for="idwrrObjectType">Class:</label>
+        <input id="idwrrObjectType" name="idwrrObjectType" type="text" class="form-control" placeholder="ex: java.lang.String" ng-model="variableSelected.type" ng-pattern="variableTypeRegex" required="true"/>
+        <span class="help-block rrVariableErrorText" ng-if="variableForm.idwrrObjectType.$dirty && variableForm.idwrrObjectType.$error.required">Variables must be assigned a type</span>
+        <span class="help-block rrVariableErrorText" ng-if="variableForm.idwrrObjectType.$dirty && variableForm.idwrrObjectType.$error.pattern">Variable types must be <code>java.*</code> or <code>sailpoint.object.*</code> class names</span>
+    </div>
+
+    <div class="panel panel-info">
+        <div class="panel-heading" ng-click="state.collapsed = !state.collapsed" tabindex="0">
+            Variable value
+            <i ng-if="state.collapsed" class="glyphicon glyphicon-triangle-right"></i>
+            <i ng-if="!state.collapsed" class="glyphicon glyphicon-triangle-bottom"></i>
+        </div>
+        <div class="panel-body" uib-collapse="state.collapsed">
+            <div class="alert alert-info">
+                Use this section to set the value of this variable for your script. This will only
+                be used within the Rule Runner for rule testing and cannot (yet) be persisted with your
+                Rule. Variables will be initialized before the Rule begins execution.
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="idwrrVarValueType">Initialization type:</label>
+                        <select id="idwrrVarValueType" ng-model="variableSelected.value.valueType" class="form-control">
+                            <option value="">None</option>
+                            <option value="value">Value</option>
+                            <option value="script">Script</option>
+                            <option value="object" ng-if="variableSelected.isSailpointType()">Object Lookup</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-12" ng-if="variableSelected.value.valueType == 'value'">
+                    <div class="form-group">
+                        <label for="idwrrVarObjectValue">Object value:</label>
+                        <textarea id="idwrrVarObjectValue" class="form-control idwrrMonospace" ng-model="variableSelected.value.objectValue" aria-describedby="idwrrVarObjectValueHelp"></textarea>
+                        <span id="idwrrVarObjectValueHelp" class="help-block">This value will be processed according to the type. Supported types include String, List, Map, InputStream, Number, Date, and any SailPointObject. Dates should be in YYYY-MM-DD form. SailPointObjects must be in XML format.</span>
+                    </div>
+                </div>
+                <div class="col-md-12" ng-if="variableSelected.value.valueType == 'script'">
+                    <div class="form-group">
+                        <label for="idwrrVariableCodeMirrorContainer">Object script:</label>
+                        <div ui-codemirror id="idwrrVariableCodeMirrorContainer" ng-model-options="{debounce: 1000}" ng-model="variableSelected.value.objectScript" ui-codemirror-opts="editorOptions" class="cmContainer"></div>
+                    </div>
+                </div>
+                <div class="col-md-12" ng-if="variableSelected.isSailpointType() && variableSelected.value.valueType == 'object'">
+                    <div class="form-group">
+                        <label for="idwrrVarObjectName">Object name or id:</label>
+                        <input id="idwrrVarObjectName" class="form-control" ng-model="variableSelected.value.objectName"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <button class="btn btn-success" type="button" ng-click="$ctrl.variableSave()" ng-disabled="!variableSelected.isValid() || variableForm.idwrrObjectType.$error.pattern || variableForm.idwrrObjectType.$error.required">Save</button>
+        <button class="btn btn-default" type="button" ng-click="$ctrl.variableCancel()">Cancel</button>
+    </div>
+</form>

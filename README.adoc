@@ -1,0 +1,56 @@
+= IDW Rule Runner plugin
+
+https://git.identityworksllc.com/idw/idw-sailpoint/iiq-plugins/rule-runner-plugin/-/jobs/artifacts/master/raw/build/distributions/rule-runner-plugin.zip?job=build[Latest Rule Runner Build]
+
+== Documentation
+
+The Rule Runner plugin allows ad-hoc Beanshell code execution. It is similar to the Debug pages' "Run Rule" feature, but with live syntax checking, simple auto-completion, execution history, and thread safety features.
+
+To run a rule, simply type your code into the source code box and click `Run`. The rule's output, whether success or failure, will be added to the _Execution results_ section. Output can be scalar, object, or XML format, each of which render slightly differently.
+
+Client user guide: https://docs.google.com/document/d/12PBlDis2hhpcbqGDPxb3SAgCxxyxf97s21ohA6kRmFM/edit?usp=sharing
+
+=== Rule libraries
+
+You may use Rule Library code by selecting them from the dropdown box below the source code entry area. More than one rule library can be selected.
+
+=== Asynchronous execution
+
+By default, the _Run asynchronously_ feature is enabled. With this feature enabled, each execution will create two background threads: (1) an execution thread to run your Rule and (2) a monitor thread.
+
+The monitor thread is responsible for tracking the progress of the execution thread. It will attempt to kill long-running executions after ten minutes.
+
+With asynchronous execution, any messages logged by the Beanshell script will be returned to the browser, updated every couple seconds. You may also log progress messages and progress percentages using the `monitor` object, which implements a superset of `sailpoint.task.Monitor`. These will be relayed in the user interface.
+
+You may also terminate asynchronous execution using the _Stop_ button.
+
+=== Other execution options
+
+The following checkbox options are available:
+
+* _Include web context variables_: If checked, the servlet variables _httpRequest_ and _httpResponse_, and the IIQ web service context _webService_ are provided to your script. This can be used to debug web session issues. Since this can only run in the context of a web service call, this option is not compatible with asynchronous execution.
+* _Include workflow library variables (lint only)_: If you are writing a workflow library, your code will assume _launcher_ and _wfcontext_ variables exist. This option provides those variables so that those lines don't cause syntax errors.
+* _Ignore type errors that Beanshell allows (lint only)_: Beanshell provides a superset of Java, allowing some dynamic typing. The Java parser will reject these structures as errors or warnings. This option suppresses those errors.
+
+=== Loading and saving rules
+
+You can load and save existing Rule objects, including their source code and rule libraries.
+
+== Building this project
+
+=== Importing Javascript libraries
+
+This project uses https://yarnpkg.com/en/[Yarn] to manage Javascript dependencies. These dependencies *are not stored in Git*. You will need to install them on first build.
+
+Steps to grab dependencies using Yarn:
+
+. https://yarnpkg.com/en/docs/install[Install Yarn] for your operating system.
+. Check this project out of Git.
+. On a command prompt, navigate to `&lt;project&gt;/ui/js`.
+. Run `yarn --flat` to pull all dependencies.
+
+You will end up with a `node_modules` directory where Yarn exported all of the dependencies and a `bower_components` _symlinked to somewhere within `node_modules`_. Don't mess with this please.
+
+=== Building everything else
+
+Use `./gradlew` to build the plugin ZIP file.

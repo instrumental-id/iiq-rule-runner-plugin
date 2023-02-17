@@ -1,0 +1,28 @@
+<div ng-if="ruleLibraryOptions">
+    <input type="text" selectize="ctrl.ruleLibrarySelectize" config="selectizeOptions" options="ruleLibraryOptions" ng-model="ctrl.ruleLibraries" placeholder="Add rule libraries..."/>
+</div>
+<div class="form-group">
+    <input id="includeWebClassesCheck" type="checkbox" ng-model="ctrl.includeWebClasses"/>
+    <label for="includeWebClassesCheck">Include web context variables</label>
+</div>
+<div class="form-group">
+    <input id="isWorkflowRuleLibraryCheck" type="checkbox" ng-model="ctrl.isWorkflowRuleLibrary"/>
+    <label for="isWorkflowRuleLibraryCheck">Include workflow library variables (lint only)</label>
+</div>
+<div class="form-group">
+    <input id="suppressRawTypeErrorsCheck" type="checkbox" ng-model="ctrl.suppressRawTypeErrors"/>
+    <label for="suppressRawTypeErrorsCheck">Ignore type errors that Beanshell allows (lint only)</label>
+</div>
+
+<div class="form-group">
+    <input id="isAsyncCheck" type="checkbox" ng-model="ctrl.async"/>
+    <label for="isAsyncCheck">Run asynchronously</label>
+</div>
+<div class="form-group">
+    <input id="hideDocumentation" type="checkbox" ng-model="ctrl.hideDocumentation"/>
+    <label for="hideDocumentation">Auto-hide documentation on run</label>
+</div>
+<div class="form-group">
+    <input id="generateVariables" type="checkbox" ng-model="ctrl.generateVariables"/>
+    <label for="generateVariables">Generate loaded rule arguements as variables</label>
+</div>

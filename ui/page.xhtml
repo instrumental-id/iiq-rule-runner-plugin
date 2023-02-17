@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC
+  "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:sp="http://sailpoint.com/ui">
+<body>
+
+<ui:composition>
+    <div class="container" ng-app="RuleRunnerPluginModule" ng-controller="RuleRunnerController as ctrl">
+		<script>
+			window.iiqTemplateMaker = function(tmpl) {
+				return PluginHelper.getPluginFileUrl(PLUGIN_NAME, "ui/" + tmpl)
+			}
+		</script>
+        <div class="row m-t">
+        	<div style="padding:10px" class="rule-runner-app panel ng-cloak">
+            	<uib-accordion close-others="false">
+				    <div uib-accordion-group="true" class="panel-default rule-editor-panel" is-open="true">
+				    	<uib-accordion-heading>
+				    		<span class="glyphicon glyphicon-wrench"></span>&nbsp;Rule Editor ({{ctrl.loadedRule.name}})
+				    	</uib-accordion-heading>
+						<div ui-codemirror="{ onLoad : onCodeMirrorLoad }" ng-model-options="{debounce: 1000}" ng-model="ctrl.source" ui-codemirror-opts="editorOptions" ng-click="reopenDocumentation()"></div>
+						<div style="margin-top:5px; margin-bottom:5px" class="container justify-content-start" role="table">
+							<div class="row justify-content-start">
+								<!-- Left-side action panel -->
+								<div class="col-md-4">
+									<!-- The action buttons -->
+									<div id="idwRuleRunnerButtonsContainer" ng-include="iiqTemplateMaker('templates/include-buttons.html')">
+									</div>
+
+									<!-- Dark mode and other editor options -->
+									<div class="options">
+										<div class="form-group">
+											<input id="darkModeCheck" type="checkbox" ng-model="ctrl.darkMode"/>
+											<label for="darkModeCheck">Dark mode</label>
+										</div>
+									</div>
+
+									<!-- Status and error check messages -->
+									<div class="messages-container" ng-if="messages"><span class="fa fa-check"></span> {{messages}}</div>
+									<div class="messages-container" ng-if="errorCount > 0">
+										<div><span class="fa fa-times"></span> Syntax check found {{errorCount}} problems!</div>
+										<div><a href="#" ng-click="ctrl.scrollToError(0)">Jump to first</a> | <a href="#" ng-click="ctrl.scrollToError(nextErrorItem)">Jump to next ({{nextErrorItem + 1}})</a></div>
+									</div>
+								</div>
+
+								<!-- Right-side action panel, rule libraries, execution flags, etc -->
+								<div class="col-md-6 options" ng-include="iiqTemplateMaker('templates/include-rule-library-options.html')">
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div uib-accordion-group="true" class="panel-default documentation-panel" is-open="panels.documentationelem" ng-click="ctrl.toggleDocumentation()" >
+				    	<uib-accordion-heading>
+				    		<span class="fa fa-book"></span>&nbsp;Documentation
+				    	</uib-accordion-heading>
+				    	<iframe ng-attr-src="{{documentationLink}}" class="documentation-window"></iframe>
+					</div>
+
+					<div uib-accordion-group="true" class="panel-default results-panel" is-open="panels.resultselem">
+						<uib-accordion-heading>
+							<span class="fa fa-file-text"></span>&nbsp;Execution Results
+						</uib-accordion-heading>
+						<div id="progressBar" ng-if="ctrl.running">
+							<progress id="idwRuleRunnerProgress" ng-non-bindable="true" max="100"></progress>
+						</div>
+						<div id="progressString" ng-if="ctrl.running &amp;&amp; runningRuleStats.progressString"><strong>Status:</strong> {{runningRuleStats.progressString}}</div>
+						<div id="abort-panel" class="panel panel-danger" ng-if="lastAbortTime">
+							<div class="panel-body">
+								<span class="fa fa-times"></span> Execution terminated at {{lastAbortTime | date:'yyyy-MM-dd HH:mm:ss.sss'}}
+							</div>
+						</div>
+						<div id="success-panel" class="panel panel-primary" ng-if="output || xml || json">
+							<div class="panel-heading">
+								<i class="glyphicon glyphicon-ok"></i> Output <span ng-if="outputType">({{outputType}})</span>
+							</div>
+							<div class="panel-body panel-no-padding">
+								<div id="string-output" ng-if="output"><pre class="pre-scrollable">{{output}}</pre></div>
+								<div id="xml-output" ng-if="xml"><pre class="pre-scrollable">{{xml | prettyXml}}</pre></div>
+								<div id="json-output" ng-if="json"><div class="json-container" id="json"><json-formatter open="1" json="json"></json-formatter></div></div>
+							</div>
+						</div>
+						<div id="exception-panel" class="panel panel-danger" ng-if="errorMessage">
+							<div class="panel-heading">
+								<i class="glyphicon glyphicon-warning-sign"></i> Exception
+							</div>
+							<div class="panel-body panel-no-padding">
+								<pre class="pre-scrollable">{{errorMessage}}</pre>
+							</div>
+						</div>
+						<div id="logs-panel" class="panel panel-info" ng-if="logs">
+							<div class="panel-heading">
+								<i class="glyphicon glyphicon-comment"></i> Logs ({{logs.length}})
+							</div>
+							<table class="table table-hover table-condensed">
+								<tr class="log-line" ng-repeat="log in logs">
+									<td class="log-time">{{log.date | date:'yyyy-MM-dd HH:mm:ss.sss'}}</td>
+									<td class="log-level">{{log.level}}</td>
+									<td class="log-message">{{log.message}}</td>
+								</tr>
+							</table>
+						</div>
+						<div>
+							Last update: {{lastUpdate | date:'yyyy-MM-dd HH:mm:ss.sss'}} <br/>
+							Host: {{hostname}}
+						</div>
+					</div>
+
+					<div uib-accordion-group="true" class="panel-default rule-history-panel" is-open="panels.historyelem">
+				    	<uib-accordion-heading>
+				    		<span class="fa fa-history"></span>&nbsp;Rule History
+				    	</uib-accordion-heading>					
+						<div style="padding: 10px" class="panel ng-cloak">
+							<div class="input-group">
+								<span class="input-group-addon" id="filter-addon">Filter</span>
+								<input class="form-control" id="filter-input" type="text" ng-model="searchField"/>
+							</div>
+							<div class="checkbox">
+								<label>
+									<input type="checkbox" ng-model="showRecentOnly.flag"/> Only show history from past month
+								</label>
+							</div>
+							<table width="100%">
+								<thead>
+									<tr>
+										<th width="200px" style="padding:5px;width:200px;vertical-align:top" scope="col">Date</th>
+										<th scope="col">Snippet</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="row in ctrl.executionHistory | filter:searchField | filter:filterRecent" style="border-bottom:1px solid #ccc">
+										<td style="padding:5px;width:200px;vertical-align:top"><a ng-click="ctrl.restoreHistory(row)">{{row.date}}</a></td>
+										<td>{{row.source | limit:200}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div> <!-- End rule history panel -->
+				</uib-accordion>
+			</div>
+		</div>		
+	</div>
+	
+	<sp:style serveOffset="#{base.requestContextPath}/scripts/codemirror-4.3/lib">
+		<src>codemirror.css</src>
+	</sp:style>
+	
+	<sp:style serveOffset="#{base.requestContextPath}/scripts/codemirror-4.3/addon/hint">
+		<src>show-hint.css</src>
+	</sp:style>
+	
+	<sp:style serveOffset="#{base.requestContextPath}/scripts/codemirror-4.3/addon/lint">
+		<src>lint.css</src>
+	</sp:style>
+			
+	<sp:style serveOffset="#{base.requestContextPath}/scripts/codemirror-4.3/theme">
+		<src>sailpoint.css</src>
+	</sp:style>
+
+	<sp:style serveOffset="#{base.requestContextPath}/scripts/codemirror-4.3/theme">
+		<src>vibrant-ink.css</src>
+	</sp:style>
+
+
+	<link rel="stylesheet" type="text/css" href="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/node_modules/selectize/dist/css/selectize.css"></link>
+	<link rel="stylesheet" type="text/css" href="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/node_modules/jsonformatter/dist/json-formatter.css"></link>
+	<link rel="stylesheet" type="text/css" href="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/css/app.css"></link>
+
+	<!--
+		NOTE: It is very important that all of these scripts be loaded with 'defer'.
+		This allows us to manage conflicts with third-party plugins.
+	-->
+	<script type="application/javascript" src="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/unruleiq.js" defer="defer">
+
+	</script>
+
+	<script type="application/javascript" src="#{plugins.requestContextPath}/scripts/codemirror-4.3/lib/codemirror.js" defer="defer"></script>
+	<script type="application/javascript" src="#{plugins.requestContextPath}/scripts/codemirror-4.3/addon/hint/show-hint.js" defer="defer"></script>
+	<script type="application/javascript" src="#{plugins.requestContextPath}/scripts/codemirror-4.3/addon/hint/anyword-hint.js" defer="defer"></script>
+	<script type="application/javascript" src="#{plugins.requestContextPath}/scripts/codemirror-4.3/addon/edit/matchbrackets.js" defer="defer"></script>
+	<script type="application/javascript" src="#{plugins.requestContextPath}/scripts/codemirror-4.3/addon/edit/closebrackets.js" defer="defer"></script>
+	<script type="application/javascript" src="#{plugins.requestContextPath}/scripts/codemirror-4.3/addon/lint/lint.js" defer="defer"></script>
+	<script type="application/javascript" src="#{plugins.requestContextPath}/scripts/codemirror-4.3/mode/clike/clike.js" defer="defer"></script>
+    <script type="application/javascript" src="#{plugins.requestContextPath}/ui/js/bundles/SailPointBundleLibrary.js" defer="defer"></script>
+    
+	<script type="application/javascript">
+		window["$"] = jQuery;
+	</script>
+	
+	<script type="application/javascript" src="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/node_modules/jsonformatter/dist/json-formatter.min.js" defer="defer"></script>
+	<script type="application/javascript" src="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/node_modules/angular-pretty-xml/dist/angular-pretty-xml.js" defer="defer"></script>
+	<script type="application/javascript" src="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/node_modules/angular-ui-codemirror/src/ui-codemirror.js" defer="defer"></script>
+	<script type="application/javascript" src="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/node_modules/selectize/dist/js/standalone/selectize.js" defer="defer"></script>
+	<script type="application/javascript" src="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/node_modules/angular-selectizejs/angular-selectize.js" defer="defer"></script>
+	<script type="application/javascript" src="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/polyfill.js" defer="defer"></script>
+	<script type="application/javascript" src="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/LoadedRule.js" defer="defer"></script>
+	<script type="application/javascript" src="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/RunningRule.js" defer="defer"></script>
+	<script type="application/javascript" src="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/RuleVariable.js" defer="defer"></script>
+    <script type="application/javascript" src="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/app.js" defer="defer"></script>
+	<script type="application/javascript" src="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/RuleVariableModalController.js" defer="defer"></script>
+
+</ui:composition>
+
+</body>
+</html>
