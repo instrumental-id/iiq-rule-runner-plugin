@@ -1,0 +1,72 @@
+<div uib-accordion-group="true" class="panel-default rule-editor-panel" is-open="true">
+    <uib-accordion-heading>
+        <span class="glyphicon glyphicon-wrench"></span>&nbsp;Rule Editor ({{ctrl.loadedRule.name}})
+    </uib-accordion-heading>
+    <div ui-codemirror="{ onLoad : onCodeMirrorLoad }" ng-model-options="{debounce: 1000}" ng-model="ctrl.source" ui-codemirror-opts="editorOptions"></div>
+    <div style="margin-top:5px; margin-bottom:5px" class="container justify-content-start" role="table">
+        <div class="row justify-content-start">
+            <div class="col-md-4">
+                <div id="idwRuleRunnerButtonsContainer">
+                    <div class="button-row">
+                        <button class="btn btn-success" ng-click="ctrl.runRule()" ng-disabled="ctrl.running" role="button">
+                            <span ng-if="!ctrl.running"><i class="glyphicon glyphicon-flash"></i>Run</span>
+                            <span class="glyphicon glyphicon-refresh spinning" ng-if="ctrl.running"/>
+                        </button>
+                        <button class="btn btn-danger" ng-click="ctrl.abortRule()" ng-disabled="!ctrl.running || !ctrl.async || aborting || !lastUpdateObject.uuid" role="button">
+                            <span ng-if="!aborting"><i class="glyphicon glyphicon-remove"></i>Stop</span>
+                            <span ng-if="aborting"><span class="glyphicon glyphicon-refresh spinning"/>Stopping...</span>
+                        </button>
+                    </div>
+                    <div class="button-row">
+                        <button class="btn btn-secondary" ng-click="ctrl.clearRule()" ng-disabled="ctrl.running" role="button">
+                            <span><i class="glyphicon glyphicon-file"></i>New</span>
+                        </button>
+                        <button class="btn btn-secondary" ng-click="ctrl.startLoadRule()" ng-disabled="ctrl.running" role="button">
+                            <span><i class="glyphicon glyphicon-floppy-open"></i>Open</span>
+                        </button>
+                        <button class="btn btn-secondary" ng-click="ctrl.startSaveRule()" ng-disabled="ctrl.running" role="button">
+                            <span><i class="glyphicon glyphicon-floppy-save"></i>Save</span>
+                        </button>
+                        <!-- Commenting out until the feature is complete
+                        <button class="btn btn-secondary" ng-click="ctrl.startVariables()" ng-disabled="ctrl.running" role="button">
+                            <span><i class="glyphicon glyphicon-cog"></i>Variables</span>
+                        </button>
+                        -->
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="form-group">
+                        <input id="darkModeCheck" type="checkbox" ng-model="ctrl.darkMode"/>
+                        <label for="darkModeCheck">Dark mode</label>
+                    </div>
+                </div>
+                <div class="messages-container" ng-if="messages"><span class="fa fa-check"></span> {{messages}}</div>
+                <div class="messages-container" ng-if="errorCount > 0">
+                    <div><span class="fa fa-times"></span> Syntax check found {{errorCount}} problems!</div>
+                    <div><a href="#" ng-click="ctrl.scrollToError(0)">Jump to first</a> | <a href="#" ng-click="ctrl.scrollToError(nextErrorItem)">Jump to next ({{nextErrorItem + 1}})</a></div>
+                </div>
+            </div>
+            <div class="col-md-6 options">
+                <div ng-if="ruleLibraryOptions">
+                    <input type="text" selectize="ctrl.ruleLibrarySelectize" config="selectizeOptions" options="ruleLibraryOptions" ng-model="ctrl.ruleLibraries" placeholder="Add rule libraries..."/>
+                </div>
+                <div class="form-group">
+                    <input id="includeWebClassesCheck" type="checkbox" ng-model="ctrl.includeWebClasses"/>
+                    <label for="includeWebClassesCheck">Include web context variables</label>
+                </div>
+                <div class="form-group">
+                    <input id="isWorkflowRuleLibraryCheck" type="checkbox" ng-model="ctrl.isWorkflowRuleLibrary"/>
+                    <label for="isWorkflowRuleLibraryCheck">Include workflow library variables (lint only)</label>
+                </div>
+                <div class="form-group">
+                    <input id="suppressRawTypeErrorsCheck" type="checkbox" ng-model="ctrl.suppressRawTypeErrors"/>
+                    <label for="suppressRawTypeErrorsCheck">Ignore type errors that Beanshell allows (lint only)</label>
+                </div>
+                <div class="form-group">
+                    <input id="isAsyncCheck" type="checkbox" ng-model="ctrl.async"/>
+                    <label for="isAsyncCheck">Run asynchronously</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

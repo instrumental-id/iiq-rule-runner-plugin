@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "dependencies": {
+    "angular-pretty-xml": "^0.1.1",
+    "angular-ui-codemirror": "^0.3.0",
+    "jsonformatter": "^0.7.0",
+    "angular-selectizejs": "^0.1.7",
+    "selectize": "^0.12.6"
+  },
+  "devDependencies": {
+    "angularjs": "latest",
+    "jquery": "^3.4.1"
+  },
+  "engines": {
+    "yarn": ">= 1.0.0"
+  }
+}

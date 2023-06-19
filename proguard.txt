@@ -1,0 +1,42 @@
+-printmapping proguard.map
+
+-keep public class com.identityworksllc.iiq.plugins.rrp.*
+
+-keepclassmembers public class com.identityworksllc.iiq.plugins.rrp.** {
+	public <methods>;
+}
+
+
+-keepclassmembers,allowobfuscation public class com.identityworksllc.iiq.plugins.rrp.* {
+    <fields>;
+}
+
+-keepclassmembers,allowoptimization enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-flattenpackagehierarchy 'com.identityworksllc.iiq.plugins.rrp.util'
+
+-adaptclassstrings
+
+-dontoptimize
+
+-dontwarn bsh.*
+-dontwarn javax.faces.**
+-dontwarn picocli.*
+-dontwarn org.jline.**
+-dontwarn sailpoint.**
+-dontwarn org.apache.velocity.**
+-dontwarn org.yaml.snakeyaml.**
+-dontwarn org.apache.logging.log4j.**
+-dontwarn org.springframework.core.**
+-dontwarn javax.crypto.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.apache.bsf.**
+-dontwarn openconnector.**
+-dontwarn org.apache.commons.beanutils.**
+-dontwarn javax.xml.bind.**
+
+-renamesourcefileattribute SourceFile
+-keepattributes SourceFile,LineNumberTable,*Annotation*
