@@ -1,0 +1,19 @@
+{
+  "type": "module",
+  "dependencies": {
+    "@types/angular": "^1.8.9",
+    "@types/codemirror": "^5.60.15",
+    "@types/selectize": "^0.12.39",
+    "angular-pretty-xml": "^0.1.1",
+    "angular-selectizejs": "^0.1.7",
+    "angular-ui-codemirror": "^0.3.0",
+    "jsonformatter": "^0.7.0",
+    "selectize": "^0.12.6"
+  },
+  "devDependencies": {
+    "@tsconfig/recommended": "^1.0.7",
+    "angularjs": "latest",
+    "jquery": "^3.4.1",
+    "typescript": "^5.5.4"
+  }
+}

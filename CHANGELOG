@@ -1,0 +1,19 @@
+# CHANGELOG
+
+## 2024
+
+### September 11
+
+- Cleaned up the licensing, added copyright notices to Java files
+
+### September 06
+
+- Cleaned up the JSON produced by the various VO classes.
+  - Created new VO classes for returning rule history.
+- Fixed a bug preventing the plugin from compiling against the latest versions of iiq-common-public.
+- Converted the Javascript code to TypeScript, preparing it for conversion to AngularJS components and then Angular 15+.
+  - Began separating 'service' stuff, like Execution History, from the main controllers.
+- Made multiple self-monitoring utilities available to running rules:
+  - `__worker` is now a reference to the `SailPointWorker` object that is running the Beanshell code.
+  - `monitor` has some additional methods for reporting progress more fluently.
+- Added a new plugin setting, `createTaskResult`, which will create a TaskResult for every Rule Runner execution, allowing more than one person to monitor the progress of long-running rules.
