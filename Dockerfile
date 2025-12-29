@@ -1,0 +1,1 @@
+FROM git.identityworksllc.com:5005/idw/idw-sailpoint/automation-infrastructure/idw-containers/gradle-plugin

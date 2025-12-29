@@ -1,0 +1,16 @@
+.idea/
+.DS_Store
+/bin/
+/all/
+/build/
+/.gradle/
+/src/SailPointSizingRule
+/src/LibraryTest
+/src/CompletionTest
+proguard.map
+ui/bin
+.java-version
+ui/js/yarn-error.log
+dummy.sh
+node_modules
+*.csv

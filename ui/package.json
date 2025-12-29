@@ -1,0 +1,24 @@
+{
+  "type": "module",
+  "scripts": {
+    "build": "webpack"
+  },
+  "dependencies": {
+    "@selectize/selectize": "^0.15.2",
+    "codemirror": "^5.65.20",
+    "localforage": "^1.10.0",
+    "xml-formatter": "^3.6.7"
+  },
+  "devDependencies": {
+    "@tsconfig/recommended": "^1.0.7",
+    "@types/angular": "^1.8.9",
+    "@types/selectize": "^0.12.39",
+    "@types/jquery": "^3.4.1",
+    "angularjs": "latest",
+    "jquery": "^3.4.1",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.9.3",
+    "webpack": "^5.104.0",
+    "webpack-cli": "^6.0.1"
+  }
+}

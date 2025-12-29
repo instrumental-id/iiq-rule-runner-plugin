@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC
+  "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:sp="http://sailpoint.com/ui">
+<body>
+
+<ui:composition>
+    <div class="container" ng-app="RuleRunnerPluginModule" ng-controller="RuleRunnerController as ctrl">
+		<script>
+			window.iiqTemplateMaker = function(tmpl) {
+				return PluginHelper.getPluginFileUrl(PLUGIN_NAME, "ui/" + tmpl)
+			}
+		</script>
+        <div class="row m-t">
+        	<div style="padding:10px" class="rule-runner-app panel ng-cloak">
+            	<uib-accordion close-others="false">
+				    <div uib-accordion-group="true" class="panel-default rule-editor-panel" is-open="true">
+				    	<uib-accordion-heading>
+				    		<span class="glyphicon glyphicon-wrench"></span>&nbsp;Rule Editor ({{ctrl.editorComponent.state.loadedRule.name}})
+				    	</uib-accordion-heading>
+
+						<editor-panel></editor-panel>
+					</div>
+
+					<div uib-accordion-group="true" class="panel-default documentation-panel" is-open="ctrl.applicationState.panels.documentationelem" ng-click="ctrl.toggleDocumentation()" >
+				    	<uib-accordion-heading>
+				    		<span class="fa fa-book"></span>&nbsp;Documentation
+				    	</uib-accordion-heading>
+				    	<iframe ng-attr-src="{{documentationLink}}" class="documentation-window"></iframe>
+					</div>
+
+					<div uib-accordion-group="true" class="panel-default results-panel" is-open="ctrl.applicationState.panels.resultselem">
+						<uib-accordion-heading>
+							<span class="fa fa-file-text"></span>&nbsp;Execution Results
+						</uib-accordion-heading>
+						<render-output running="ctrl.running" state="ctrl.outputState">
+
+						</render-output>
+					</div>
+
+					<div uib-accordion-group="true" class="panel-default rule-history-panel" is-open="ctrl.applicationState.panels.historyelem">
+				    	<uib-accordion-heading>
+				    		<span class="fa fa-history"></span>&nbsp;Rule History
+				    	</uib-accordion-heading>					
+						<div style="padding: 10px" class="panel ng-cloak">
+							<div class="input-group">
+								<span class="input-group-addon" id="filter-addon">Filter</span>
+								<input class="form-control" id="filter-input" type="text" ng-model="searchField"/>
+							</div>
+							<div class="checkbox">
+								<label>
+									<input type="checkbox" ng-model="ctrl.applicationState.showRecentOnly"/> Only show history from past month
+								</label>
+							</div>
+							<table width="100%">
+								<thead>
+									<tr>
+										<th width="200px" style="padding:5px;width:200px;vertical-align:top" scope="col">Date</th>
+										<th scope="col">Snippet</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="row in ctrl.applicationState.executionHistory | filter:searchField | filter:filterRecent" style="border-bottom:1px solid #ccc">
+										<td style="padding:5px;width:200px;vertical-align:top"><a ng-click="ctrl.restoreHistory(row)">{{row.date}}</a></td>
+										<td>{{row.source | limit:200}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div> <!-- End rule history panel -->
+				</uib-accordion>
+			</div>
+		</div>		
+	</div>
+
+	<!-- 8.5+ -->
+	<link rel="stylesheet" type="text/css" href="#{base.requestContextPath}/scripts/codemirror-5.65.16/theme/sailpoint.css"/>
+
+	<!-- 8.4 and earlier -->
+	<link rel="stylesheet" type="text/css" href="#{base.requestContextPath}/scripts/codemirror-4.3/theme/sailpoint.css"/>
+
+
+	<link rel="stylesheet" type="text/css" href="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/node_modules/codemirror/lib/codemirror.css"></link>
+	<link rel="stylesheet" type="text/css" href="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/node_modules/codemirror/addon/hint/show-hint.css"></link>
+	<link rel="stylesheet" type="text/css" href="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/node_modules/codemirror/addon/lint/lint.css"></link>
+
+	<link rel="stylesheet" type="text/css" href="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/node_modules/codemirror/theme/vibrant-ink.css"></link>
+	<link rel="stylesheet" type="text/css" href="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/node_modules/codemirror/theme/paraiso-light.css"></link>
+
+	<link rel="stylesheet" type="text/css" href="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/node_modules/@selectize/selectize/dist/css/selectize.css"></link>
+    <link rel="stylesheet" type="text/css" href="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/css/angular-json-tree.css"></link>
+	<link rel="stylesheet" type="text/css" href="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/css/app.css"></link>
+
+	<!--
+		NOTE: It is very important that all of these scripts be loaded with 'defer'.
+		This allows us to manage conflicts with third-party plugins.
+	-->
+	<script type="application/javascript" src="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/unruleiq.js" defer="defer">
+
+	</script>
+
+
+	<script type="application/javascript" src="#{plugins.requestContextPath}/ui/js/bundles/SailPointBundleLibrary.js" defer="defer"></script>
+    
+	<script type="application/javascript">
+		window["$"] = jQuery;
+	</script>
+
+	<script type="application/javascript" src="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/polyfill.js" defer="defer"></script>
+	<script type="application/javascript" src="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/localforage.min.js" defer="defer"></script>
+
+    <script type="application/javascript" src="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/angular-json-tree.min.js" defer="defer"></script>
+	<script type="module" src="#{plugins.requestContextPath}/plugin/IDWRuleRunnerPlugin/ui/js/rr-bundle.js" defer="defer"></script>
+
+</ui:composition>
+
+</body>
+</html>

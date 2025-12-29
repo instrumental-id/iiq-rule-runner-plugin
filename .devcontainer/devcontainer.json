@@ -1,0 +1,34 @@
+{
+  "image": "mcr.microsoft.com/devcontainers/java:8",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "none",
+      "gradleVersion": "6.9.4"
+    },
+    "ghcr.io/devcontainers/features/git-lfs:1": {
+      "autoPull": true,
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "latest"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "java.configuration.updateBuildConfiguration": "automatic"
+      },
+      "extensions": [
+        "redhat.java",
+        "redhat.vscode-xml",
+        "redhat.vscode-yaml",
+        "sohibe.java-generate-setters-getters",
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-java-dependency",
+        "vscjava.vscode-java-test",
+        "vscjava.vscode-gradle",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  }
+}

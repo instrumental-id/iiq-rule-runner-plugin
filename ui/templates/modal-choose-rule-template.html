@@ -1,0 +1,29 @@
+<div class="modal-header">
+    <h4 class="modal-title" id="modal-title">Select a rule</h4>
+</div>
+<div class="modal-body idwbhpCsvModal" id="modal-body">
+    <div class="form-horizontal" style="margin-left: 10px">
+        <div class="form-group" style="display: flex; align-items: center; width: 100%;">
+            <label class="col-md-2" for="idwRuleRunnerRuleOpenFilter">Filter by name: </label>
+            <div class="col-md-6">
+                <input class="form-control" id="idwRuleRunnerRuleOpenFilter" ng-model="ruleNameFilter"/>
+            </div>
+        </div>
+    </div>
+    <div class="panel panelMain">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Rule Name</th>
+                    <th>Rule Type</th>
+                </tr>
+            </thead>
+            <tr ng-repeat="item in rulesTable | orderBy:'name' | filter:ruleNameFilter">
+                <td><button class="btn btn-default" type="button" ng-click="$ctrl.selectItem(item)"><span class="glyphicon glyphicon-folder-open"></span></button></td>
+                <td>{{item.name}}</td>
+                <td>{{item.type}}</td>
+            </tr>
+        </table>
+    </div>
+</div>
