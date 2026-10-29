@@ -1,0 +1,55 @@
+-printmapping proguard.map
+
+-keep public class com.identityworksllc.iiq.plugins.rrp.**
+
+-keepclassmembers public class com.identityworksllc.iiq.plugins.rrp.** {
+	public <methods>;
+}
+
+-keepclassmembers,allowobfuscation public class com.identityworksllc.iiq.plugins.rrp.* {
+    <fields>;
+}
+
+-keepclassmembers,allowoptimization enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-flattenpackagehierarchy 'com.identityworksllc.iiq.plugins.rrp.util'
+
+-adaptclassstrings
+
+-dontoptimize
+
+-dontwarn bsh.*
+-dontwarn javax.faces.**
+-dontwarn picocli.*
+-dontwarn org.jline.**
+-dontwarn sailpoint.**
+-dontwarn org.apache.velocity.**
+-dontwarn org.yaml.snakeyaml.**
+-dontwarn org.apache.logging.log4j.**
+-dontwarn org.springframework.core.**
+-dontwarn javax.crypto.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.apache.bsf.**
+-dontwarn openconnector.**
+-dontwarn org.apache.commons.beanutils.**
+-dontwarn javax.xml.bind.**
+# Referenced by iiq-common classes, supplied by IIQ at runtime
+-dontwarn javax.annotation.**
+-dontwarn javax.validation.**
+-dontwarn com.jayway.jsonpath.**
+# Annotations in iiq-common classes that are not needed at runtime
+-dontwarn lombok.**
+# iiq-common's connector classes extend OpenConnector classes from the connector bundle, which the plugin never uses
+-dontwarn com.identityworksllc.iiq.common.connector.**
+# IIQ 9.0 (jakarta) equivalents
+-dontwarn jakarta.**
+-dontwarn org.apache.log4j.**
+-dontwarn org.apache.commons.**
+-dontwarn net.sf.jasperreports.**
+-dontwarn connector.common.**
+
+-renamesourcefileattribute SourceFile
+-keepattributes SourceFile,LineNumberTable,*Annotation*

@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE sailpoint PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<sailpoint>
+	<ImportAction name="merge">
+		<AuditConfig name="AuditConfig">
+			<AuditActions>
+				<AuditAction displayName="Run Rule Plugin" enabled="true" name="runRulePluginAction" />
+			</AuditActions>
+		</AuditConfig>
+	</ImportAction>
+</sailpoint>
+  

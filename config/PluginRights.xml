@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE sailpoint PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<sailpoint>
+    <!-- The rights granted by the below capabilities -->
+    <SPRight name="IDW_SP_RuleRunner" displayName="Rule Runner Access">
+        <Description>Allows this user to access the rule runner page</Description>
+    </SPRight>
+
+    <!-- Actual capabilities (bundles of rights) that can be assigned to an IIQ user or workgroup -->
+    <Capability name="IDW_SP_RuleRunner_Capability" displayName="Rule Runner Access">
+    	<Description>Allows this user to run code via the Rule Runner</Description>
+    	<RightRefs>
+            <Reference class="sailpoint.object.SPRight" name="IDW_SP_RuleRunner"/>
+    	</RightRefs>
+    </Capability>
+</sailpoint>

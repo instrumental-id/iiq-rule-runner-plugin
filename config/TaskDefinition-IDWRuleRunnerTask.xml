@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE TaskDefinition PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<TaskDefinition concurrent="true" executor="sailpoint.task.WorkflowExecutor" hidden="true" name="IDWRuleRunnerTask" subType="task_item_type_workflow" type="Workflow" progressMode="String" progressInterval="5000">
+    <Description>Rule Runner task result wrapper</Description>
+</TaskDefinition>

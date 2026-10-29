@@ -1,0 +1,58 @@
+<!--
+ * IID Rule Runner Plugin
+ * Copyright (C) 2019-2025 Devin Rosenbauer
+ *
+ * See the LICENSE file for more details on permitted use
+ *
+ * Instrumental Identity
+ * https://www.instrumentalidentity.com
+-->
+<div id="progressBar" ng-if="$ctrl.running">
+    <progress id="idwRuleRunnerProgress" ng-non-bindable="true" max="100"></progress>
+</div>
+<div id="progressString" ng-if="$ctrl.running &amp;&amp; $ctrl.stats.progressString"><strong>Status:</strong> {{$ctrl.stats.progressString}}</div>
+<div id="abort-panel" class="panel panel-danger" ng-if="$ctrl.state.lastAbortTime">
+    <div class="panel-body">
+        <span class="fa fa-times"></span> Execution terminated at {{$ctrl.state.lastAbortTime | date:'yyyy-MM-dd HH:mm:ss.sss'}}
+    </div>
+</div>
+<div id="success-panel" class="panel panel-primary" ng-if="$ctrl.state.output.present()">
+    <div class="panel-heading" role="heading">
+        <i class="glyphicon glyphicon-ok"></i> Output <span ng-if="$ctrl.state.outputType">({{$ctrl.state.outputType}})</span>
+    </div>
+    <div class="panel-body panel-no-padding" aria-label="Output value" aria-live="assertive" role="region">
+        <div id="string-output" ng-if="$ctrl.isString()" aria-label="Text output value"><pre class="pre-scrollable">{{$ctrl.getOutput()}}</pre></div>
+        <div id="xml-output" ng-if="$ctrl.isXml()" aria-label="XML output value"><pre class="pre-scrollable">{{$ctrl.getOutput()}}</pre></div>
+        <div id="json-output" ng-if="$ctrl.isJson()" aria-label="JSON output value"><div class="json-container" id="json"><json-tree start-expanded="true" root-name="$ctrl.state.outputType" object="$ctrl.getOutput()"></json-tree></div></div>
+    </div>
+</div>
+<div id="exception-panel" class="panel panel-danger" ng-if="$ctrl.state.errorMessage" role="alert" aria-live="assertive">
+    <div class="panel-heading">
+        <i class="glyphicon glyphicon-warning-sign"></i> Exception
+    </div>
+    <div class="panel-body panel-no-padding">
+        <div class="error-suggestion" ng-if="$ctrl.isParseError()">
+            <p>This appears to be a syntax error in your Beanshell.</p>
+            <p><strong>{{$ctrl.parseErrorSuggestion}}</strong></p>
+        </div>
+
+        <pre class="pre-scrollable">{{$ctrl.state.errorMessage}}</pre>
+    </div>
+</div>
+<div id="logs-panel" class="panel panel-info" ng-if="$ctrl.state.logs" aria-live="polite">
+    <div class="panel-heading">
+        <i class="glyphicon glyphicon-comment"></i> Logs ({{$ctrl.state.logs.length}})
+    </div>
+    <table class="table table-hover table-condensed">
+        <tr class="log-line" ng-repeat="log in $ctrl.state.logs">
+            <td class="log-time">{{log.date | date:'yyyy-MM-dd HH:mm:ss.sss'}}</td>
+            <td class="log-level">{{log.level}}</td>
+            <td class="log-message">{{log.message}}</td>
+        </tr>
+    </table>
+</div>
+<div>
+    Last update: {{$ctrl.state.lastUpdate | date:'yyyy-MM-dd HH:mm:ss.sss'}} <br/>
+    Elapsed: {{$ctrl.state.lastUpdateObject.elapsed}} seconds <br/>
+    Host: {{$ctrl.state.hostname}}
+</div>
