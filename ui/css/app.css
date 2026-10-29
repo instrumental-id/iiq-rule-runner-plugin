@@ -1,0 +1,224 @@
+.idwrrMonospace {
+	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+.idwrrNameRuleModal .input-group {
+    padding-bottom: 5px;
+}
+
+.idwrrNameRuleModal .panel {
+    padding: 5px;
+}
+
+#json span {
+	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+.json-container {
+	background-color: #eeeeee;
+	color: #333333;
+	font-size: 10pt;
+	border: 1px solid #cccccc;
+	border-radius: 4px;
+}
+
+.CodeMirror-code span {
+	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+div.margin-top-7 {
+	margin-top: 7px;
+}
+
+div.selectize-control {
+	border: 0;
+	padding: 0;
+	margin: 0;
+}
+
+div.selectize-dropdown.form-control {
+	height: unset;
+}
+
+div.rule-runner-app .CodeMirror {
+	border-bottom: 1px solid #eee;
+	height: 320px !important;
+}
+
+div.idwrrVariableEntry {
+	margin-top: 5px;
+}
+
+div.idwrrVariableModal .rrLabel {
+	font-weight: bold;
+	margin-bottom: 5px;
+	display: inline-block;
+	max-width: 100%;
+}
+
+div.idwrrVariableModal .CodeMirror {
+	border-bottom: 1px solid #eee;
+	height: 100px !important;
+}
+
+div.idwrrVariableModal .cmContainer {
+	border: 1px solid #ccc;
+}
+
+div.button-row {
+	padding-bottom: 3px;
+}
+
+div.options div.form-group {
+	margin-bottom: 0;
+}
+
+div.messages-container {
+	margin-top: 10px;
+}
+
+#progressString {
+	margin-bottom: 10px;
+	font-size: 120%;
+}
+
+#idwRuleRunnerProgress {
+	width: 100%;
+	height: 15px;
+}
+
+#abort-panel {
+	font-size: 170%;
+	background: lightpink;
+	padding-bottom: 5px;
+	padding-top: 5px;
+}
+
+#logs-panel tbody {
+	display: block;
+	max-height: 300px;
+	overflow-y: scroll;
+}
+
+tr.log-line {
+	width: 100%;
+	display: block;
+	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+	padding-left: 7px;
+	padding-right: 7px;
+}
+
+tr.log-line td {
+	font-family: inherit;
+}
+
+tr.log-line td.log-time {
+	width: 20%
+}
+
+tr.log-line td.log-message {
+	width: 70%;
+}
+
+tr.log-line td.log-level {
+	width: 7rem;
+	max-width: 7rem;
+	text-transform: uppercase;
+}
+
+.rule-editor-panel .panel-body {
+	padding: 0;
+}
+
+.panel-no-padding {
+	padding: 0;
+}
+
+.rule-runner-app .panel-heading {
+	font-weight: bold;
+	font-size: 1.4rem;
+}
+
+.results-panel pre {
+	margin-bottom: 0;
+}
+
+.results-panel div.panel {
+	margin-bottom: 5px;
+}
+
+.documentation-panel pre{
+	margin-bottom: 0;
+}
+
+.documentation-panel div.panel{
+	margin-bottom: 5px;
+}
+
+.documentation-window{
+	width: 100%;
+	min-height: 30em;
+	resize: vertical; 
+}
+
+.glyphicon.spinning {
+    animation: spin 1s infinite linear;
+    -webkit-animation: spin2 1s infinite linear;
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg); }
+    to { transform: scale(1) rotate(360deg); }
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg); }
+    to { -webkit-transform: rotate(360deg); }
+}
+
+
+/* DARK MODE */
+
+div.sp-body-container.dark {
+	background: black;
+}
+
+div.sp-body.dark {
+	background: black;
+}
+
+div.sp-body.dark a {
+	color: #dcad65;
+	font-size: 110%;
+}
+
+div.sp-body.dark div.panel {
+	background: #222;
+	color: #dddddd;
+}
+
+div.sp-body.dark div.panel-heading {
+	background: #444;
+	color: #dddddd;
+}
+
+div.sp-body.dark div.panel-heading h4 {
+	color: #dddddd;
+}
+
+
+div.sp-body.dark div.panel-body {
+	background: #222;
+	color: #dddddd;
+}
+
+div.idwrrVariableModal span.rrVariableErrorText {
+	color: red;
+	font-weight: bold;
+}
+
+div.error-suggestion {
+	padding: 10px;
+	font-size: 110%;
+	border: 1px solid #cccccc;
+}

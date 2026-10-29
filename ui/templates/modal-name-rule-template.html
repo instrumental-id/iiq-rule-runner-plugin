@@ -1,0 +1,22 @@
+<div class="modal-header">
+    <h4 class="modal-title" id="modal-title">Name your rule</h4>
+</div>
+<div class="modal-body idwrrNameRuleModal" id="modal-body">
+    <datalist id="idwRuleRunnerTypes">
+        <option ng-repeat="type in ruleTypes" ng-value="{{type}}">{{type}}</option>
+    </datalist>
+    <div class="panel panelMain">
+        <div class="form-group">
+            <label for="idwRuleRunnerName">Rule name</label>
+            <input id="idwRuleRunnerName" name="idwRuleRunnerName" type="text" class="form-control" placeholder="Rule Name" ng-model="ruleName"/>
+        </div>
+        <div class="form-group">
+            <label for="idwRuleRunnerType">Rule type</label>
+            <input id="idwRuleRunnerType" list="idwRuleRunnerTypes" name="idwRuleRunnerType" type="text" class="form-control" placeholder="Rule Type" ng-model="ruleType"/>
+        </div>
+        <div>
+            <button class="btn btn-success" type="button" ng-click="$ctrl.ok()">Save</button>
+            <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">Cancel</button>
+        </div>
+    </div>
+</div>

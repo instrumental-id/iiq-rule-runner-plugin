@@ -1,0 +1,373 @@
+import java.util.zip.*
+
+buildscript {
+	repositories {
+		google()
+		mavenCentral()
+	}
+	dependencies {
+		// 7.1.0 can't read Java 17 bytecode, which iiq-common-public contains
+		classpath 'com.guardsquare:proguard-gradle:7.10.0'
+	}
+}
+
+plugins {
+  id "org.ajoberstar.grgit" version '4.1.1'
+}
+
+apply plugin: "base"
+apply plugin: 'java'
+apply plugin: 'java-library'
+
+defaultTasks "clean", "repackPluginZip"
+
+/*
+ * Which IIQ is in lib/? IIQ 9.0 moved to the jakarta namespace, so the javax variant can't compile against
+ * its jars. With 9.x in lib, only the jakarta variant is built (see gradle/jakarta.include.gradle).
+ * With an older IIQ in lib, the jakarta variant is built only if there is an identityiq.jar in lib-9.0.
+ */
+def iiqVersion = null
+def iiqJar = file("lib/identityiq.jar")
+if (iiqJar.exists()) {
+	new ZipFile(iiqJar).withCloseable { zip ->
+		def entry = zip.getEntry("META-INF/MANIFEST.MF")
+		if (entry != null) {
+			def line = zip.getInputStream(entry).withCloseable { it.text }.readLines().find { it.startsWith("Implementation-Version: ") }
+			if (line) {
+				iiqVersion = line.substring("Implementation-Version: ".length()).tokenize(" ").first()
+			}
+		}
+	}
+}
+def iiqMajorVersion = iiqVersion?.tokenize(".")?.first()
+ext.jakartaOnly = iiqMajorVersion?.isInteger() && (iiqMajorVersion as int) >= 9
+
+def gitVersion = "v${grgit?.head()?.abbreviatedId}"
+
+// Extract the display name and plugin name from the manifest xml for usage in the QuickLink if it exists.
+def skipQuickLink = project.hasProperty("skipQuickLink")
+def displayName = "IDW PLUGIN"
+def pluginName = "IDWPLUGIN"
+def orderNumber = System.getenv("CI_PROJECT_ID")
+println("Project ID: " + orderNumber)
+if (orderNumber == null) {
+	println("No project ID found, setting order number to 1")
+	orderNumber = "1"
+}
+if(skipQuickLink) {
+    println("Skipping QuickLink generation")
+}
+else{
+    def foundMatch = file("manifest.xml").getText() =~ /(?s).*displayName=\"(.*?)\".*name=\"(.*?)\".*<FullPage.*/ 
+    if (foundMatch) {
+        println("This looks to be a full page plugin, adding a QuickLink to the plugin")
+        println("If you'd like to skip QuickLink generation run gradlew with the property 'skipQuickLink=true'")
+        displayName = foundMatch.group(1)
+        pluginName = foundMatch.group(2)
+        println("Display Name: " + displayName)
+        println("Plugin Name: " + pluginName)
+    }
+    else{
+        println("This doesn't look to be a full page plugin, skipping QuickLink generation")
+        skipQuickLink = true
+    }
+}
+
+static def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('yyyy.MMdd.HHmmss')
+    return formattedDate
+}
+
+repositories {
+	mavenCentral()
+	flatDir {
+		dirs "includes/lib"
+	}
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+        resources {
+            srcDirs = ['src']
+        }
+    }
+	tools {
+		java {
+			srcDirs = ['toolssrc']
+		}
+		resources {
+			srcDirs = ['toolssrc']
+		}
+	}
+}
+
+def spLibs = fileTree(dir: 'lib')
+spLibs.include "identityiq.jar"
+
+configurations {
+    obfuscateLibraries
+    api.extendsFrom obfuscateLibraries
+	toolsImplementation.extendsFrom implementation
+
+    obfuscationInclude
+    api.extendsFrom obfuscationInclude
+}
+
+dependencies {
+    obfuscateLibraries spLibs
+
+    // IIQ provides ECJ at runtime (3.22 in 8.4, 3.29 in 8.5 and 9.0), so compile against the oldest and don't bundle it
+    obfuscateLibraries group: 'org.eclipse.jdt', name: 'ecj', version: '3.22.0'
+	obfuscationInclude ":iiq-common-public:"
+
+    obfuscateLibraries group: 'commons-logging', name: 'commons-logging', version: '1.1.3'
+    obfuscateLibraries group: 'log4j', name: 'log4j', version: '1.2.17'
+    obfuscateLibraries group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.17.1'
+    obfuscateLibraries group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.17.1'
+    obfuscateLibraries group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.2'
+    obfuscateLibraries group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.2'
+    obfuscateLibraries(group: 'org.glassfish.jersey.bundles', name: 'jaxrs-ri', version: '2.22.2') {
+		transitive = false
+	}
+    obfuscateLibraries group: 'org.glassfish.jersey.media', name: 'jersey-media-multipart', version: '2.35'
+    obfuscateLibraries group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+    obfuscateLibraries group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
+	toolsImplementation 'info.picocli:picocli:4.5.0'
+    toolsImplementation group: 'org.jline', name: 'jline', version: '3.25.0'
+	toolsImplementation group: 'com.googlecode.lanterna', name: 'lanterna', version: '3.1.1'
+	runtimeOnly group: 'com.googlecode.juniversalchardet', name: 'juniversalchardet', version: '1.0.3'
+    runtimeOnly group: 'org.aspectj', name: 'aspectjrt', version: '1.8.9'
+}
+
+jar {
+	exclude 'CompletionTest'
+	exclude 'LibraryTest'
+	exclude 'SailPointSizingRule'
+	processResources {
+		exclude("*")
+	}
+}
+
+clean {
+	delete 'ui/js/out'
+}
+
+def nodeJs = tasks.register("nodeJs", Exec) {
+	workingDir './ui'
+
+	commandLine 'npm', 'ci'
+}
+
+def typescript = tasks.register("compileTypescript", Exec) {
+	dependsOn nodeJs
+
+	workingDir './ui'
+
+	commandLine 'npx', 'webpack'
+}
+
+def obfuscateJava = tasks.register("obfuscateJava", proguard.gradle.ProGuardTask) {
+	configuration 'proguard.txt'
+	injars jar
+    injars configurations.obfuscationInclude, filter: '!META-INF/MANIFEST.MF'
+	outjars "${buildDir}/libs/RR-obf.jar"
+	libraryjars configurations.named("obfuscateLibraries").get()
+	if (JavaVersion.current().isJava9Compatible()) {
+		libraryjars(System.getProperty("java.home") + "/jmods")
+	} else {
+		libraryjars(System.getProperty("java.home") + "/lib/rt.jar")
+		libraryjars(System.getProperty("java.home") + "/lib/jce.jar")
+	}
+}
+
+/**
+ * Registers a task that builds one variant of the plugin ZIP. The javax (IIQ 8.x) and
+ * jakarta (IIQ 9.0+) variants differ only in the obfuscated jar and in the manifest.
+ *
+ * @param taskName The name of the task to register
+ * @param zipName The file name of the resulting ZIP
+ * @param obfuscatedJar The task producing the variant's obfuscated jar
+ * @param manifestFilter A function applied to each line of manifest.xml after the version is filled in
+ */
+ext.registerPluginZip = { String taskName, String zipName, Object obfuscatedJar, Closure<String> manifestFilter ->
+	return tasks.register(taskName, Zip) {
+	dependsOn typescript
+
+    preserveFileTimestamps = true
+    reproducibleFileOrder = true
+	archiveFileName = zipName
+    entryCompression = ZipEntryCompression.DEFLATED
+
+    into('jars') {
+        from obfuscatedJar
+
+        exclude "proguard*.map"
+    }
+
+    into('import/install') {
+    	from("config") {
+    		include "**"
+    		exclude "*Example*"
+			if(!skipQuickLink){
+                filter { it.replace("%%DISPLAY_NAME%%", displayName) }
+                filter { it.replace("%%PLUGIN_NAME%%", pluginName) }
+				filter { it.replace("%%ORDER_NUMBER%%", orderNumber) }
+            }
+            else{
+                exclude "**/QuickLink.xml"
+            }
+    	}
+    }
+
+    into('import/upgrade') {
+    	from("config") {
+    		include "**"
+    		exclude "*Example*"
+			if(!skipQuickLink){
+                filter { it.replace("%%DISPLAY_NAME%%", displayName) }
+                filter { it.replace("%%PLUGIN_NAME%%", pluginName) }
+				filter { it.replace("%%ORDER_NUMBER%%", orderNumber) }
+            }
+            else{
+                exclude "**/QuickLink.xml"
+            }
+    	}
+    }
+
+	from("ui/js/includes") {
+		into 'ui/js'
+		include '*.js'
+	}
+
+	from ("ui/build") {
+		into 'ui/js'
+		include '**/*.js'
+	}
+
+	from ("ui/node_modules") {
+		into 'ui/js/node_modules'
+		include "jsonformatter/dist/*"
+		include "angular-pretty-xml/dist/angular-pretty-xml.js"
+		include "@selectize/selectize/dist/css/selectize.css"
+
+		include "codemirror/addon/lint/*.css"
+		include "codemirror/addon/hint/*.css"
+		include "codemirror/theme/paraiso-light.css"
+		include "codemirror/theme/vibrant-ink.css"
+		include "codemirror/lib/codemirror.css"
+	}
+
+	from ("ui/js/src") {
+		into "ui/templates"
+		include "component/**/*.html"
+	}
+    
+    from('.') {
+		include 'LICENSE'
+        include 'db/**'
+		include "ui/*.xhtml"
+		include "ui/templates/*.html"
+		include "ui/templates/panel/*.html"
+		include "ui/css/app.css"
+        include "ui/css/angular-json-tree.css"
+		filter { it.replace("%%BUILD_VERSION%%", getDate() + "." + gitVersion) }
+    }
+
+    from('.') {
+        include 'manifest.xml'
+        filter { String line -> manifestFilter(line.replace("%%BUILD_VERSION%%", getDate() + "." + gitVersion)) }
+    }
+}
+}
+
+registerPluginZip("createPluginZip", archivesBaseName + ".zip", obfuscateJava, { String line -> line })
+
+def createPluginZip = tasks.named("createPluginZip") {
+	dependsOn 'jar'
+}
+
+/**
+ * Registers a task that rewrites a plugin ZIP so that its nested JARs are STORED with a valid CRC.
+ *
+ * @param taskName The name of the task to register
+ * @param zipTask The task producing the ZIP to repack in place
+ */
+ext.registerRepackZip = { String taskName, TaskProvider<Zip> zipTask ->
+  return tasks.register(taskName) {
+    dependsOn zipTask
+
+    def inputZip = zipTask.get().archiveFile
+    def outputZip = layout.buildDirectory.file(
+            "distributions/${zipTask.get().archiveFileName.get().replaceAll(/\.zip$/, "")}-repacked.zip"
+    )
+
+    inputs.file inputZip
+    outputs.file outputZip
+
+    doLast {
+        def input = inputZip.get().asFile
+        def output = outputZip.get().asFile
+
+        def readEntry = { ZipInputStream zin ->
+            def baos = new ByteArrayOutputStream()
+            def buffer = new byte[8192]
+            int len
+            while ((len = zin.read(buffer)) > 0) {
+                baos.write(buffer, 0, len)
+            }
+            baos.toByteArray()
+        }
+
+        new ZipInputStream(new BufferedInputStream(new FileInputStream(input))).withCloseable { zin ->
+            new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(output))).withCloseable { zout ->
+                ZipEntry entry
+                while ((entry = zin.nextEntry) != null) {
+                    def isJar = entry.name.endsWith('.jar')
+
+                    def bytes = readEntry(zin)
+
+                    def newEntry = new ZipEntry(entry.name)
+                    if (isJar) {
+                        newEntry.method = ZipEntry.STORED
+                        newEntry.size = bytes.length
+                        newEntry.compressedSize = bytes.length
+                        def crc = new CRC32()
+                        crc.update(bytes)
+                        newEntry.crc = crc.value
+                    } else {
+                        newEntry.method = ZipEntry.DEFLATED
+                    }
+
+                    zout.putNextEntry(newEntry)
+                    zout.write(bytes)
+                    zout.closeEntry()
+                }
+            }
+        }
+
+        // Replace the original. File.renameTo can fail silently (e.g. onto an existing file on Windows), so use a move that throws
+        java.nio.file.Files.move(output.toPath(), input.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+    }
+  }
+}
+
+registerRepackZip("repackPluginZip", createPluginZip)
+
+// The IIQ 9.0 (jakarta) variant. Builds against the 9.0 jars in lib-9.0; see the file for details.
+// An applied script can't see this script's buildscript classpath, so hand it the task type.
+ext.proGuardTaskType = proguard.gradle.ProGuardTask
+apply from: "gradle/jakarta.include.gradle"
+
+if (tasks.names.contains("createJakartaPluginZip")) {
+	registerRepackZip("repackJakartaPluginZip", tasks.named("createJakartaPluginZip"))
+
+	if (jakartaOnly) {
+		defaultTasks "clean", "repackJakartaPluginZip"
+	} else {
+		defaultTasks "clean", "repackPluginZip", "repackJakartaPluginZip"
+	}
+}
